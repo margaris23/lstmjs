@@ -1,11 +1,22 @@
-// LSTM cell
+// LSTM cell with Forget Gate
 
 // Gates are sigmoid neural network layers!!!
 
 // tanh pushes values between -1 and 1
-// sigmoid = 1 / ( 1 + e ^ x)
+
 function sigmoig(x) {
   return 1 / (1 + Math.exp(x));
+}
+
+// Hadamard Product + bias
+// https://en.wikipedia.org/wiki/Hadamard_product_(matrices)
+// only Nx1 vectors for now
+function vector_mul_plus_b(x, y, b) {
+  let res = 0;
+  for (let i = 0; i < x.length; i++) {
+    res += x[i] * y[i];
+  }
+  return res + b;
 }
 
 // const inputGate = 1;
@@ -13,43 +24,49 @@ function sigmoig(x) {
 // const outputGate = 3;
 
 // memory from previous block
-const S_t_prev = []; // vector
+const C_t_prev = [];
 
 // ==== START OF FORGET CELL
-const X_t_input_vector = [];
-const h_t_prev_output = [];
+const X_t_input_vector = []; // should reset to 0
+const h_t_prev_output = []; // should reset to 0
 
-function f_t_forgetGate(x, h) {
-  // TODO: find implementation
-  // probably a sigmoig with output 0 or 1
+// function f_t_forgetGate(x, h) {
+//   // sigmoid(Wf * [h_t_prev, x_t] + bf)
+//   // Wf === weight, randomized initialy
+//   // bf === bias, randomized initialy
+//   return [];
+// }
 
-  // sigmoid(Wf * [h_t_prev, x_t] + bf)
-  // Wf === weight, randomized initialy
-  // bf === bias, randomized initialy
-  return [];
-}
+// FORGET GATE
+let w_forget = []; // W, U contains both weights for h and x
+let b_forget = 0;
+const f_t_forgetGate = sigmoig(
+  vector_mul_plus_b(
+    w_forget,
+    h_t_prev_output.concat(X_t_input_vector),
+    b_forget
+  )
+);
 
 // elementwise multiplication
-const mul_forget = S_t_prev * f_t_forgetGate(X_t_input_vector, h_t_prev_output);
+const mul_forget = vector_mul_plus_b(C_t_prev, f_t_forgetGate);
 // ==== END OF FORGET CELL
 
 // ==== START OF INPUT CELL
 function i_t_inputGate(x, h) {
-  // TODO: find implementation
   // sigmoid(Wi * [h_t_prev, x_t] + bi)
   return [];
 }
 
-// Or Else Candidate C_tilde_t
-function s_tilde(x, h) {
-  // TODO: find implementation
+// cell input activation vector
+function C_tilde(x, h) {
   // tanh(Wc*[h_t_prev, x_t] + bc)
   return [];
 }
 
 // elementwise multiplication
 const mul_input =
-  s_tilde(X_t_input_vector, h_t_prev_output) *
+  C_tilde(X_t_input_vector, h_t_prev_output) *
   i_t_inputGate(X_t_input_vector, h_t_prev_output);
 // ==== END OF INPUT CELL
 
@@ -58,7 +75,6 @@ const sum_forget_input = mul_forget + mul_input;
 
 // ==== START OF OUTPUT CELL
 function o_t_outputGate(x, h) {
-  // TODO: find implementation
   // sigmoid(Wo * [h_t_prev, x_t] + bo)
   return [];
 }
