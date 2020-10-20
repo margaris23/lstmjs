@@ -1,3 +1,3 @@
-# Simple LSTM
+# lstmjs
 
-Implementation of LSTM in javascript
+LSTM Cells for Articificial RNNs in Javascript
