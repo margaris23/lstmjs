@@ -5,11 +5,11 @@
 import { sigmoid, tanh, vector_mul_plus_b, vector_sum } from './helpers';
 
 // memory from previous block
-const C_t_prev: any[] = [];  // should reset to zero
+const cellStatePrev: any[] = [];  // should reset to zero
 
 // ==== START OF FORGET CELL
-const X_t_input_vector: any[] = []; // should reset to 0
-const h_t_prev_output: any[] = []; // should reset to 0
+const xTInputVector: any[] = []; // should reset to 0
+const hTPrevOutput: any[] = []; // should reset to 0
 
 // function f_t_forgetGate(x, h) {
 //   // sigmoid(Wf * [h_t_prev, x_t] + bf)
@@ -19,67 +19,67 @@ const h_t_prev_output: any[] = []; // should reset to 0
 // }
 
 // FORGET GATE
-let w_forget: any[] = []; // W, U contains both weights for h and x
-let b_forget: any[] = [];
-const f_t_forgetGate = sigmoid(
+const wForget: any[] = []; // W, U contains both weights for h and x
+const bForget: any[] = [];
+const fTForgetGate = sigmoid(
   vector_mul_plus_b(
-    w_forget,
-    h_t_prev_output.concat(X_t_input_vector),
-    b_forget
+    wForget,
+    hTPrevOutput.concat(xTInputVector),
+    bForget
   )
 );
 
 // elementwise multiplication // TODO: fix
-const mul_forget: any[] = vector_mul_plus_b(C_t_prev, f_t_forgetGate, []);
+const mulForget: any[] = vector_mul_plus_b(cellStatePrev, fTForgetGate, []);
 // ==== END OF FORGET CELL
 
 // ==== START OF INPUT CELL
-let w_input: any[] = []; // W, U contains both weights for h and x
-let b_input: any[] = [];
-const i_t_inputGate: any[] = sigmoid(
+const wInput: any[] = []; // W, U contains both weights for h and x
+const bInput: any[] = [];
+const iTInputGate: any[] = sigmoid(
   vector_mul_plus_b(
-    w_input,
-    h_t_prev_output.concat(X_t_input_vector),
-    b_input
+    wInput,
+    hTPrevOutput.concat(xTInputVector),
+    bInput
   )
 );
 
 // cell input activation vector
-let w_c: any[] = []; // W, U contains both weights for h and x
-let b_c: any[] = [];
-const c_t_activator: any[] = tanh(
+const wC: any[] = []; // W, U contains both weights for h and x
+const bC: any[] = [];
+const cTActivator: any[] = tanh(
   vector_mul_plus_b(
-    w_c,
-    h_t_prev_output.concat(X_t_input_vector),
-    b_c
+    wC,
+    hTPrevOutput.concat(xTInputVector),
+    bC
   )
 );
 
 // elementwise multiplication
-const mul_input: any[] = vector_mul_plus_b(c_t_activator, i_t_inputGate, []);
+const mulInput: any[] = vector_mul_plus_b(cTActivator, iTInputGate, []);
 // ==== END OF INPUT CELL
 
 // elementwise summation
-const sum_forget_input: any[] = vector_sum(mul_forget, mul_input);
+const sumForgetInput: any[] = vector_sum(mulForget, mulInput);
 
 // ==== START OF OUTPUT CELL
-let w_output: any[] = []; // W, U contains both weights for h and x
-let b_output: any[] = [];
-const o_t_outputGate: any[] = sigmoid(
+const wOutput: any[] = []; // W, U contains both weights for h and x
+const bOutput: any[] = [];
+const oTOutputGate: any[] = sigmoid(
   vector_mul_plus_b(
-    w_output,
-    h_t_prev_output.concat(X_t_input_vector),
-    b_output
+    wOutput,
+    hTPrevOutput.concat(xTInputVector),
+    bOutput
   )
 );
 
 // Cell State == Memory from current block
 // Ct = f_t * C_t_prev + i_t * C_tilde_t
-const S_t_next: any[] = sum_forget_input;
+const sTNext: any[] = sumForgetInput;
 
 // elementwise multiplication
-const mul_state_output: any[] = vector_mul_plus_b(o_t_outputGate, tanh(S_t_next), []);
+const mulStateOutput: any[] = vector_mul_plus_b(oTOutputGate, tanh(sTNext), []);
 // ==== END OF INPUT CELL
 
 // Output of current block
-const h_t_next: any[] = mul_state_output;
+const hTNext: any[] = mulStateOutput;
